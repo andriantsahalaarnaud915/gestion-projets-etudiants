@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Test extraction{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <h2>Test d'extraction du document</h2>
+
+    <p>
+        Document :
+        <strong>{{ document.titre }}</strong>
+    </p>
+
+    {% if erreur %}
+
+        <div class="alert alert-danger">
+            <strong>Erreur :</strong>
+            {{ erreur }}
+        </div>
+
+    {% else %}
+
+        <div class="card mt-4">
+            <div class="card-body">
+
+                <h5>Texte extrait</h5>
+
+                <hr>
+
+                <pre style="white-space: pre-wrap;">{{ texte }}</pre>
+
+            </div>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

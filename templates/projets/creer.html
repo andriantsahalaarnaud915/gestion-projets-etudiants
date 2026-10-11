@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un projet{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">Nouveau projet</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Titre du projet *</label>
+                        <input type="text" name="titre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea name="description" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Objectifs</label>
+                        <textarea name="objectifs" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Date de fin prévue</label>
+                        <input type="date" name="date_fin_prevue" class="form-control">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Créer le projet</button>
+                        <a href="{% url 'liste_projets' %}" class="btn btn-outline-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

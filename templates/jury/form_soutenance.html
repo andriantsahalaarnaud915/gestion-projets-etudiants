@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if soutenance %}
+        Modifier la soutenance
+    {% else %}
+        Nouvelle soutenance
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- ===================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ===================================================== -->
+
+    <div class="mb-4">
+
+        <a
+            href="{% if soutenance %}{% url 'jury:detail_soutenance' soutenance.id %}{% else %}{% url 'jury:dashboard' %}{% endif %}"
+            class="btn btn-outline-secondary btn-sm mb-3"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Retour
+        </a>
+
+        <h2 class="fw-bold mb-1">
+
+            {% if soutenance %}
+
+                <i class="bi bi-pencil-square me-2"></i>
+                Modifier la soutenance
+
+            {% else %}
+
+                <i class="bi bi-calendar-plus me-2"></i>
+                Nouvelle soutenance
+
+            {% endif %}
+
+        </h2>
+
+        <p class="text-muted mb-0">
+
+            {% if soutenance %}
+
+                Modifier les informations de cette soutenance.
+
+            {% else %}
+
+                Planifier une nouvelle soutenance pour un projet étudiant.
+
+            {% endif %}
+
+        </p>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- MESSAGES -->
+    <!-- ===================================================== -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                role="alert"
+            >
+
+                {{ message }}
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                ></button>
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <!-- ===================================================== -->
+    <!-- FORMULAIRE -->
+    <!-- ===================================================== -->
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white py-3">
+
+                    <h5 class="fw-bold mb-0">
+
+                        <i class="bi bi-calendar-event me-2"></i>
+
+                        Informations de la soutenance
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body p-4">
+
+                    <form method="post">
+
+                        {% csrf_token %}
+
+
+                        <!-- ================================= -->
+                        <!-- PROJET -->
+                        <!-- ================================= -->
+
+                        <div class="mb-4">
+
+                            <label
+                                for="projet"
+                                class="form-label fw-semibold"
+                            >
+                                Projet
+                                <span class="text-danger">*</span>
+                            </label>
+
+
+                            <select
+                                id="projet"
+                                name="projet"
+                                class="form-select"
+                                required
+                            >
+
+                                <option value="">
+                                    -- Sélectionner un projet --
+                                </option>
+
+
+                                {% for projet in projets %}
+
+                                    <option
+                                        value="{{ projet.id }}"
+                                        {% if soutenance and soutenance.projet_id == projet.id %}
+                                            selected
+                                        {% elif projet_selectionne and projet_selectionne.id == projet.id %}
+                                            selected
+                                        {% endif %}
+                                    >
+
+                                        {{ projet.titre }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+
+                            <div class="form-text">
+                                Sélectionnez le projet concerné par la soutenance.
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- DATE ET HEURE -->
+                        <!-- ================================= -->
+
+                        <div class="row g-3 mb-4">
+
+                            <!-- DATE -->
+
+                            <div class="col-md-6">
+
+                                <label
+                                    for="date"
+                                    class="form-label fw-semibold"
+                                >
+                                    Date
+                                    <span class="text-danger">*</span>
+                                </label>
+
+
+                                <input
+                                    type="date"
+                                    id="date"
+                                    name="date"
+                                    class="form-control"
+                                    value="{% if soutenance %}{{ soutenance.date|date:'Y-m-d' }}{% else %}{{ date_selectionnee|default:'' }}{% endif %}"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- HEURE -->
+
+                            <div class="col-md-6">
+
+                                <label
+                                    for="heure"
+                                    class="form-label fw-semibold"
+                                >
+                                    Heure
+                                    <span class="text-danger">*</span>
+                                </label>
+
+
+                                <input
+                                    type="time"
+                                    id="heure"
+                                    name="heure"
+                                    class="form-control"
+                                    value="{% if soutenance %}{{ soutenance.heure|time:'H:i' }}{% else %}{{ heure_selectionnee|default:'' }}{% endif %}"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- SALLE -->
+                        <!-- ================================= -->
+
+                        <div class="mb-4">
+
+                            <label
+                                for="salle"
+                                class="form-label fw-semibold"
+                            >
+                                Salle
+                                <span class="text-danger">*</span>
+                            </label>
+
+
+                            <input
+                                type="text"
+                                id="salle"
+                                name="salle"
+                                class="form-control"
+                                maxlength="150"
+                                value="{% if soutenance %}{{ soutenance.salle }}{% else %}{{ salle_selectionnee|default:'' }}{% endif %}"
+                                placeholder="Ex. Salle B12"
+                                required
+                            >
+
+
+                            <div class="form-text">
+                                Indiquez la salle dans laquelle aura lieu la soutenance.
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- STATUT -->
+                        <!-- ================================= -->
+
+                        <div class="mb-4">
+
+                            <label
+                                for="statut"
+                                class="form-label fw-semibold"
+                            >
+                                Statut
+                            </label>
+
+
+                            <select
+                                id="statut"
+                                name="statut"
+                                class="form-select"
+                            >
+
+                                <option
+                                    value="PLANIFIEE"
+                                    {% if not soutenance or soutenance.statut == "PLANIFIEE" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Planifiée
+                                </option>
+
+
+                                <option
+                                    value="EN_COURS"
+                                    {% if soutenance and soutenance.statut == "EN_COURS" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    En cours
+                                </option>
+
+
+                                <option
+                                    value="TERMINEE"
+                                    {% if soutenance and soutenance.statut == "TERMINEE" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Terminée
+                                </option>
+
+
+                                <option
+                                    value="ANNULEE"
+                                    {% if soutenance and soutenance.statut == "ANNULEE" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Annulée
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- COMMENTAIRE -->
+                        <!-- ================================= -->
+
+                        <div class="mb-4">
+
+                            <label
+                                for="commentaire"
+                                class="form-label fw-semibold"
+                            >
+                                Commentaire
+                            </label>
+
+
+                            <textarea
+                                id="commentaire"
+                                name="commentaire"
+                                class="form-control"
+                                rows="5"
+                                placeholder="Ajoutez éventuellement des informations complémentaires..."
+                            >{% if soutenance %}{{ soutenance.commentaire }}{% else %}{{ commentaire|default:'' }}{% endif %}</textarea>
+
+
+                            <div class="form-text">
+                                Ce commentaire peut contenir des informations utiles concernant la soutenance.
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- INFORMATIONS -->
+                        <!-- ================================= -->
+
+                        <div class="alert alert-light border mb-4">
+
+                            <div class="d-flex">
+
+                                <i class="bi bi-info-circle fs-4 me-3"></i>
+
+                                <div>
+
+                                    <strong>
+                                        Informations
+                                    </strong>
+
+                                    <p class="mb-0 mt-1 text-muted">
+
+                                        Après la création de la soutenance,
+                                        vous pourrez ajouter les membres du jury
+                                        depuis sa page de détails.
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- BOUTONS -->
+                        <!-- ================================= -->
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+
+                                {% if soutenance %}
+
+                                    <i class="bi bi-save me-1"></i>
+                                    Enregistrer les modifications
+
+                                {% else %}
+
+                                    <i class="bi bi-calendar-plus me-1"></i>
+                                    Créer la soutenance
+
+                                {% endif %}
+
+                            </button>
+
+
+                            <a
+                                href="{% if soutenance %}{% url 'jury:detail_soutenance' soutenance.id %}{% else %}{% url 'jury:dashboard' %}{% endif %}"
+                                class="btn btn-outline-secondary"
+                            >
+
+                                <i class="bi bi-x-circle me-1"></i>
+
+                                Annuler
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

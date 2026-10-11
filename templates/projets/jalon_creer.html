@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter un jalon{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+
+        <a href="{% url 'detail_projet' projet.pk %}"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Retour
+
+        </a>
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                Ajouter un jalon
+            </h2>
+
+            <p class="text-muted mb-0">
+                Projet : {{ projet.titre }}
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-white">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-list-check me-2"></i>
+
+                Nouveau jalon
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <form method="post">
+
+                {% csrf_token %}
+
+
+                <!-- TITRE -->
+
+                <div class="mb-3">
+
+                    <label for="titre"
+                           class="form-label fw-semibold">
+
+                        Titre du jalon
+                        <span class="text-danger">*</span>
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="titre"
+                        id="titre"
+                        class="form-control"
+                        maxlength="255"
+                        placeholder="Ex : Analyse des besoins"
+                        required>
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="mb-3">
+
+                    <label for="description"
+                           class="form-label fw-semibold">
+
+                        Description
+
+                    </label>
+
+                    <textarea
+                        name="description"
+                        id="description"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Décrivez les objectifs de ce jalon..."></textarea>
+
+                </div>
+
+
+                <div class="row">
+
+                    <!-- DATE PREVUE -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label for="date_prevue"
+                               class="form-label fw-semibold">
+
+                            Date prévue
+                            <span class="text-danger">*</span>
+
+                        </label>
+
+                        <input
+                            type="date"
+                            name="date_prevue"
+                            id="date_prevue"
+                            class="form-control"
+                            required>
+
+                    </div>
+
+
+                    <!-- ORDRE -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label for="ordre"
+                               class="form-label fw-semibold">
+
+                            Ordre du jalon
+
+                        </label>
+
+                        <input
+                            type="number"
+                            name="ordre"
+                            id="ordre"
+                            class="form-control"
+                            min="1"
+                            value="1">
+
+                        <div class="form-text">
+
+                            Permet de déterminer l'ordre d'affichage des jalons.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- POIDS -->
+
+                <div class="mb-3">
+
+                    <label for="poids"
+                           class="form-label fw-semibold">
+
+                        Poids du jalon
+                        <span class="text-danger">*</span>
+
+                    </label>
+
+                    <input
+                        type="number"
+                        name="poids"
+                        id="poids"
+                        class="form-control"
+                        min="1"
+                        value="1"
+                        required>
+
+                    <div class="form-text">
+
+                        Le poids détermine l'importance de ce jalon
+                        dans le calcul de la progression globale du projet.
+
+                    </div>
+
+                </div>
+
+
+                <!-- LIVRABLE -->
+
+                <div class="mb-3">
+
+                    <label for="livrable_attendu"
+                           class="form-label fw-semibold">
+
+                        Livrable attendu
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="livrable_attendu"
+                        id="livrable_attendu"
+                        class="form-control"
+                        maxlength="255"
+                        placeholder="Ex : Cahier des charges">
+
+                </div>
+
+
+                <!-- RESPONSABLE -->
+
+                <div class="mb-3">
+
+                    <label for="responsable"
+                           class="form-label fw-semibold">
+
+                        Responsable
+
+                    </label>
+
+                    <select
+                        name="responsable"
+                        id="responsable"
+                        class="form-select">
+
+                        <option value="">
+                            -- Aucun responsable --
+                        </option>
+
+                        {% for membre in projet.equipe.membres.all %}
+
+                            <option value="{{ membre.id }}">
+
+                                {{ membre.get_full_name|default:membre.username }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <div class="form-text">
+
+                        Vous pouvez affecter le jalon à un membre de l'équipe.
+
+                    </div>
+
+                </div>
+
+
+                <!-- COMMENTAIRE -->
+
+                <div class="mb-4">
+
+                    <label for="commentaire"
+                           class="form-label fw-semibold">
+
+                        Commentaire
+
+                    </label>
+
+                    <textarea
+                        name="commentaire"
+                        id="commentaire"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Ajoutez une remarque ou une consigne concernant ce jalon..."></textarea>
+
+                    <div class="form-text">
+
+                        Ce champ peut être utilisé pour les remarques
+                        de suivi de l'encadrant.
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-check-lg me-1"></i>
+
+                        Créer le jalon
+
+                    </button>
+
+
+                    <a
+                        href="{% url 'detail_projet' projet.pk %}"
+                        class="btn btn-outline-secondary">
+
+                        Annuler
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1137 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Dashboard Étudiant
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+    /* =====================================================
+       DASHBOARD ETUDIANT
+    ===================================================== */
+
+    .dashboard-header {
+        background: linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #f8fafc 100%
+        );
+        border-radius: 18px;
+        padding: 28px;
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
+    }
+
+
+    .dashboard-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #172033;
+    }
+
+
+    .dashboard-subtitle {
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+
+    /* =====================================================
+       STATISTIQUES
+    ===================================================== */
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 22px;
+        border: 1px solid #e5e7eb;
+        height: 100%;
+        transition: all .2s ease;
+    }
+
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(15, 23, 42, .08);
+    }
+
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 1.35rem;
+    }
+
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #172033;
+    }
+
+
+    .stat-label {
+        color: #64748b;
+        font-size: .9rem;
+    }
+
+
+    /* =====================================================
+       CARTES
+    ===================================================== */
+
+    .dashboard-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+
+    .dashboard-card-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+
+    .dashboard-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0;
+        color: #172033;
+    }
+
+
+    /* =====================================================
+       PROJET
+    ===================================================== */
+
+    .project-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px;
+        transition: all .2s ease;
+        background: white;
+    }
+
+
+    .project-card:hover {
+        border-color: #93c5fd;
+        box-shadow: 0 6px 20px rgba(37, 99, 235, .08);
+    }
+
+
+    .project-title {
+        font-weight: 700;
+        color: #172033;
+        font-size: 1rem;
+    }
+
+
+    .project-description {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+
+    .progress {
+        height: 8px;
+        border-radius: 20px;
+        background: #e5e7eb;
+    }
+
+
+    .progress-bar {
+        border-radius: 20px;
+    }
+
+
+    /* =====================================================
+       ECHEANCES
+    ===================================================== */
+
+    .deadline-item {
+        padding: 14px 0;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+
+    .deadline-item:last-child {
+        border-bottom: none;
+    }
+
+
+    .deadline-date {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: #eff6ff;
+        color: #2563eb;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        font-weight: 700;
+        line-height: 1;
+    }
+
+
+    .deadline-day {
+        font-size: 1.1rem;
+    }
+
+
+    .deadline-month {
+        font-size: .65rem;
+        text-transform: uppercase;
+    }
+
+
+    /* =====================================================
+       DOCUMENTS
+    ===================================================== */
+
+    .document-item {
+        padding: 14px 0;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+
+    .document-item:last-child {
+        border-bottom: none;
+    }
+
+
+    .document-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #f1f5f9;
+        color: #475569;
+
+        font-size: 1.2rem;
+    }
+
+
+    /* =====================================================
+       IA
+    ===================================================== */
+
+    .ia-card {
+        background: linear-gradient(
+            135deg,
+            #172554,
+            #1e3a8a
+        );
+
+        color: white;
+        border-radius: 16px;
+        padding: 24px;
+        height: 100%;
+    }
+
+
+    .ia-icon {
+        width: 52px;
+        height: 52px;
+
+        border-radius: 14px;
+
+        background: rgba(255,255,255,.12);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 1.5rem;
+    }
+
+
+    /* =====================================================
+       ACTIVITE
+    ===================================================== */
+
+    .activity-item {
+        display: flex;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+
+    .activity-dot {
+        width: 9px;
+        height: 9px;
+
+        background: #2563eb;
+
+        border-radius: 50%;
+
+        margin-top: 7px;
+
+        flex-shrink: 0;
+    }
+
+
+    .activity-title {
+        font-size: .9rem;
+        font-weight: 600;
+    }
+
+
+    .activity-date {
+        font-size: .78rem;
+        color: #94a3b8;
+    }
+
+
+    /* =====================================================
+       MOBILE
+    ===================================================== */
+
+    @media (max-width: 767px) {
+
+        .dashboard-header {
+            padding: 20px;
+        }
+
+        .dashboard-title {
+            font-size: 1.45rem;
+        }
+
+        .stat-card {
+            padding: 18px;
+        }
+
+    }
+
+</style>
+
+
+<!-- =====================================================
+     EN-TETE
+===================================================== -->
+
+<div class="dashboard-header">
+
+    <div class="row align-items-center">
+
+        <div class="col-lg-8">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div
+                    class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                    style="width:55px;height:55px;"
+                >
+                    <i class="bi bi-person fs-4"></i>
+                </div>
+
+                <div>
+
+                    <h1 class="dashboard-title mb-1">
+                        Bonjour
+                        {% if user.first_name %}
+                            {{ user.first_name }}
+                        {% else %}
+                            {{ user.username }}
+                        {% endif %}
+                        👋
+                    </h1>
+
+                    <p class="dashboard-subtitle">
+                        Bienvenue.
+                        Suivez ici l'avancement de vos projets.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+
+            <a
+                href="{% url 'creer_projet' %}"
+                class="btn btn-primary px-4 py-2"
+            >
+                <i class="bi bi-plus-lg me-2"></i>
+                Nouveau projet
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     STATISTIQUES
+===================================================== -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- PROJETS -->
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <div class="stat-label mb-2">
+                        Total projets
+                    </div>
+
+                    <div class="stat-number">
+                        {{ total_projets }}
+                    </div>
+
+                </div>
+
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-folder2-open"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- EN COURS -->
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <div class="stat-label mb-2">
+                        Projets en cours
+                    </div>
+
+                    <div class="stat-number">
+                        {{ projets_en_cours }}
+                    </div>
+
+                </div>
+
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TERMINES -->
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <div class="stat-label mb-2">
+                        Projets terminés
+                    </div>
+
+                    <div class="stat-number">
+                        {{ projets_termines }}
+                    </div>
+
+                </div>
+
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DOCUMENTS -->
+
+    <div class="col-12 col-sm-6 col-xl-3">
+
+        <div class="stat-card">
+
+            <div class="d-flex justify-content-between align-items-start">
+
+                <div>
+
+                    <div class="stat-label mb-2">
+                        Documents
+                    </div>
+
+                    <div class="stat-number">
+                        {{ total_documents }}
+                    </div>
+
+                </div>
+
+                <div class="stat-icon bg-info-subtle text-info">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PROGRESSION + IA
+===================================================== -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- PROGRESSION -->
+
+    <div class="col-lg-8">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-header">
+
+                <div>
+
+                    <h5 class="dashboard-card-title">
+                        <i class="bi bi-graph-up-arrow me-2 text-primary"></i>
+                        Progression de vos projets
+                    </h5>
+
+                </div>
+
+                <span class="badge bg-primary-subtle text-primary">
+                    {{ progression_moyenne }}%
+                </span>
+
+            </div>
+
+
+            <div class="p-4">
+
+                {% if projets_recents %}
+
+                    {% for projet in projets_recents %}
+
+                        <div class="project-card mb-3">
+
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+
+                                <div>
+
+                                    <div class="project-title">
+                                        {{ projet.titre }}
+                                    </div>
+
+                                    <div class="project-description mt-1">
+
+                                        {% if projet.description %}
+                                            {{ projet.description|truncatechars:100 }}
+                                        {% else %}
+                                            Aucun descriptif disponible.
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if projet.statut == "EN_COURS" %}
+
+                                    <span class="badge bg-warning-subtle text-warning-emphasis">
+                                        En cours
+                                    </span>
+
+                                {% elif projet.statut == "EVALUE" or projet.statut == "CLOTURE" %}
+
+                                    <span class="badge bg-success-subtle text-success">
+                                        {{ projet.get_statut_display }}
+                                    </span>
+
+                                {% elif projet.statut == "VALIDE" %}
+
+                                    <span class="badge bg-success-subtle text-success">
+                                        Validé
+                                    </span>
+
+                                {% elif projet.statut == "REFUSE" %}
+
+                                    <span class="badge bg-danger-subtle text-danger">
+                                        Refusé
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary-subtle text-secondary">
+                                        {{ projet.get_statut_display }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="d-flex justify-content-between mb-1">
+
+                                <small class="text-muted">
+                                    Progression
+                                </small>
+
+                                <small class="fw-bold">
+                                    {{ projet.progression }}%
+                                </small>
+
+                            </div>
+
+
+                            <div class="progress mb-3">
+
+                                <div
+                                    class="progress-bar bg-primary"
+                                    role="progressbar"
+                                    style="width: {{ projet.progression }}%;"
+                                ></div>
+
+                            </div>
+
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div class="small text-muted">
+
+                                    {% if projet.date_fin_prevue %}
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        Échéance :
+                                        {{ projet.date_fin_prevue|date:"d/m/Y" }}
+                                    {% else %}
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        Aucune échéance
+                                    {% endif %}
+
+                                </div>
+
+
+                                <a
+                                    href="{% url 'detail_projet' projet.pk %}"
+                                    class="btn btn-sm btn-outline-primary"
+                                >
+                                    Voir le projet
+                                    <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="text-center py-5">
+
+                        <div class="fs-1 text-muted mb-3">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
+
+                        <h6 class="fw-bold">
+                            Aucun projet
+                        </h6>
+
+                        <p class="text-muted">
+                            Vous n'avez pas encore créé de projet.
+                        </p>
+
+                        <a
+                            href="{% url 'creer_projet' %}"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-plus-lg me-2"></i>
+                            Créer mon premier projet
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ASSISTANT IA -->
+
+    <div class="col-lg-4">
+
+        <div class="ia-card">
+
+            <div class="ia-icon mb-3">
+
+                <i class="bi bi-robot"></i>
+
+            </div>
+
+
+            <h4 class="fw-bold">
+                Assistant IA
+            </h4>
+
+
+            <p class="opacity-75">
+
+                Besoin d'aide pour votre projet ?
+                L'assistant IA peut vous accompagner
+                dans votre suivi et votre préparation.
+
+            </p>
+
+
+            <div class="mt-4">
+
+                <div class="small opacity-75 mb-2">
+                    Vous pouvez demander de l'aide pour :
+                </div>
+
+                <div class="mb-2">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Suivi du projet
+                </div>
+
+                <div class="mb-2">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Conseils méthodologiques
+                </div>
+
+                <div class="mb-2">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Préparation de la soutenance
+                </div>
+
+            </div>
+
+
+            <a
+                href="{% url 'chatbot' %}"
+                class="btn btn-light mt-4 w-100"
+            >
+                <i class="bi bi-chat-dots me-2"></i>
+                Ouvrir l'assistant
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ECHEANCES + DOCUMENTS
+===================================================== -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- ECHEANCES -->
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-header">
+
+                <h5 class="dashboard-card-title">
+                    <i class="bi bi-calendar-event me-2 text-primary"></i>
+                    Prochaines échéances
+                </h5>
+
+            </div>
+
+
+            <div class="p-4">
+
+                {% if prochaines_echeances %}
+
+                    {% for projet in prochaines_echeances %}
+
+                        <div class="deadline-item">
+
+                            <div class="d-flex align-items-center gap-3">
+
+                                <div class="deadline-date">
+
+                                    <span class="deadline-day">
+                                        {{ projet.date_fin_prevue|date:"d" }}
+                                    </span>
+
+                                    <span class="deadline-month">
+                                        {{ projet.date_fin_prevue|date:"M" }}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="flex-grow-1">
+
+                                    <div class="fw-semibold">
+                                        {{ projet.titre }}
+                                    </div>
+
+                                    <div class="small text-muted">
+
+                                        <i class="bi bi-calendar3 me-1"></i>
+
+                                        {{ projet.date_fin_prevue|date:"d/m/Y" }}
+
+                                    </div>
+
+                                </div>
+
+
+                                <a
+                                    href="{% url 'detail_projet' projet.pk %}"
+                                    class="btn btn-sm btn-light"
+                                >
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="text-center py-4">
+
+                        <i class="bi bi-calendar-check fs-1 text-success"></i>
+
+                        <p class="text-muted mt-3 mb-0">
+                            Aucune échéance à venir.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DOCUMENTS -->
+
+    <div class="col-lg-6">
+
+        <div class="dashboard-card h-100">
+
+            <div class="dashboard-card-header">
+
+                <h5 class="dashboard-card-title">
+
+                    <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+
+                    Documents récents
+
+                </h5>
+
+            </div>
+
+
+            <div class="p-4">
+
+                {% if documents_recents %}
+
+                    {% for document in documents_recents %}
+
+                        <div class="document-item">
+
+                            <div class="d-flex align-items-center gap-3">
+
+                                <div class="document-icon">
+
+                                    <i class="bi bi-file-earmark"></i>
+
+                                </div>
+
+
+                                <div class="flex-grow-1">
+
+                                    <div class="fw-semibold">
+
+                                        {{ document.titre }}
+
+                                    </div>
+
+                                    <div class="small text-muted">
+
+                                        {{ document.projet.titre }}
+
+                                        •
+
+                                        {{ document.date_depot|date:"d/m/Y H:i" }}
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if document.statut == "VALIDE" %}
+
+                                    <span class="badge bg-success-subtle text-success">
+                                        Validé
+                                    </span>
+
+                                {% elif document.statut == "REFUSE" %}
+
+                                    <span class="badge bg-danger-subtle text-danger">
+                                        Refusé
+                                    </span>
+
+                                {% elif document.statut == "EN_COURS" %}
+
+                                    <span class="badge bg-warning-subtle text-warning-emphasis">
+                                        En cours
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary-subtle text-secondary">
+                                        Déposé
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="text-center py-4">
+
+                        <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
+
+                        <p class="text-muted mt-3 mb-0">
+                            Aucun document récent.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     ACTIVITE RECENTE
+===================================================== -->
+
+<div class="row g-4">
+
+
+    <div class="col-lg-8">
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-card-header">
+
+                <h5 class="dashboard-card-title">
+
+                    <i class="bi bi-clock-history me-2 text-primary"></i>
+
+                    Activité récente
+
+                </h5>
+
+            </div>
+
+
+            <div class="p-4">
+
+                {% if documents_recents %}
+
+                    {% for document in documents_recents %}
+
+                        <div class="activity-item">
+
+                            <div class="activity-dot"></div>
+
+                            <div>
+
+                                <div class="activity-title">
+
+                                    Document
+                                    <strong>
+                                        {{ document.titre }}
+                                    </strong>
+                                    déposé
+
+                                </div>
+
+                                <div class="activity-date">
+
+                                    {{ document.date_depot|date:"d/m/Y à H:i" }}
+
+                                    •
+
+                                    Projet :
+                                    {{ document.projet.titre }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <p class="text-muted mb-0">
+                        Aucune activité récente.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACCES RAPIDES -->
+
+    <div class="col-lg-4">
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-card-header">
+
+                <h5 class="dashboard-card-title">
+
+                    <i class="bi bi-lightning-charge me-2 text-warning"></i>
+
+                    Accès rapides
+
+                </h5>
+
+            </div>
+
+
+            <div class="p-3">
+
+
+                <a
+                    href="{% url 'liste_projets' %}"
+                    class="btn btn-light w-100 text-start mb-2"
+                >
+
+                    <i class="bi bi-folder me-2 text-primary"></i>
+
+                    Mes projets
+
+                    <i class="bi bi-chevron-right float-end"></i>
+
+                </a>
+
+
+                <a
+                    href="{% url 'chatbot' %}"
+                    class="btn btn-light w-100 text-start mb-2"
+                >
+
+                    <i class="bi bi-robot me-2 text-primary"></i>
+
+                    Assistant IA
+
+                    <i class="bi bi-chevron-right float-end"></i>
+
+                </a>
+
+
+                <a
+                    href="{% url 'creer_projet' %}"
+                    class="btn btn-light w-100 text-start"
+                >
+
+                    <i class="bi bi-plus-circle me-2 text-success"></i>
+
+                    Créer un projet
+
+                    <i class="bi bi-chevron-right float-end"></i>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

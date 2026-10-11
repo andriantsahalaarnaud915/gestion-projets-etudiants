@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier le jalon{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+
+        <a href="{% url 'detail_projet' projet.pk %}"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+            Retour
+
+        </a>
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+                Modifier le jalon
+            </h2>
+
+            <p class="text-muted mb-0">
+                Projet : {{ projet.titre }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-white">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-pencil-square me-2"></i>
+
+                {{ jalon.titre }}
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <form method="post">
+
+                {% csrf_token %}
+
+
+                <!-- TITRE -->
+
+                <div class="mb-3">
+
+                    <label for="titre"
+                           class="form-label fw-semibold">
+
+                        Titre du jalon
+                        <span class="text-danger">*</span>
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="titre"
+                        id="titre"
+                        class="form-control"
+                        maxlength="255"
+                        value="{{ jalon.titre }}"
+                        required>
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="mb-3">
+
+                    <label for="description"
+                           class="form-label fw-semibold">
+
+                        Description
+
+                    </label>
+
+                    <textarea
+                        name="description"
+                        id="description"
+                        class="form-control"
+                        rows="4">{{ jalon.description }}</textarea>
+
+                </div>
+
+
+                <div class="row">
+
+                    <!-- DATE PREVUE -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label for="date_prevue"
+                               class="form-label fw-semibold">
+
+                            Date prévue
+                            <span class="text-danger">*</span>
+
+                        </label>
+
+                        <input
+                            type="date"
+                            name="date_prevue"
+                            id="date_prevue"
+                            class="form-control"
+                            value="{{ jalon.date_prevue|date:'Y-m-d' }}"
+                            required>
+
+                    </div>
+
+
+                    <!-- DATE REELLE -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label for="date_reelle"
+                               class="form-label fw-semibold">
+
+                            Date réelle
+
+                        </label>
+
+                        <input
+                            type="date"
+                            name="date_reelle"
+                            id="date_reelle"
+                            class="form-control"
+                            value="{{ jalon.date_reelle|date:'Y-m-d' }}">
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUT -->
+
+                <div class="mb-3">
+
+                    <label for="statut"
+                           class="form-label fw-semibold">
+
+                        Statut
+
+                    </label>
+
+                    <select
+                        name="statut"
+                        id="statut"
+                        class="form-select">
+
+                        {% for valeur, label in statut_choices %}
+
+                            <option
+                                value="{{ valeur }}"
+                                {% if jalon.statut == valeur %}selected{% endif %}>
+
+                                {{ label }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- POIDS -->
+
+                <div class="mb-3">
+
+                    <label for="poids"
+                           class="form-label fw-semibold">
+
+                        Poids du jalon
+                        <span class="text-danger">*</span>
+
+                    </label>
+
+                    <input
+                        type="number"
+                        name="poids"
+                        id="poids"
+                        class="form-control"
+                        min="1"
+                        value="{{ jalon.poids }}"
+                        required>
+
+                    <div class="form-text">
+
+                        Le poids détermine l'importance de ce jalon
+                        dans le calcul de la progression globale.
+
+                    </div>
+
+                </div>
+
+
+                <!-- LIVRABLE -->
+
+                <div class="mb-3">
+
+                    <label for="livrable_attendu"
+                           class="form-label fw-semibold">
+
+                        Livrable attendu
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="livrable_attendu"
+                        id="livrable_attendu"
+                        class="form-control"
+                        maxlength="255"
+                        value="{{ jalon.livrable_attendu }}">
+
+                </div>
+
+
+                <!-- RESPONSABLE -->
+
+                <div class="mb-3">
+
+                    <label for="responsable"
+                           class="form-label fw-semibold">
+
+                        Responsable
+
+                    </label>
+
+                    <select
+                        name="responsable"
+                        id="responsable"
+                        class="form-select">
+
+                        <option value="">
+                            -- Aucun responsable --
+                        </option>
+
+                        {% for membre in projet.equipe.membres.all %}
+
+                            <option
+                                value="{{ membre.id }}"
+                                {% if jalon.responsable_id == membre.id %}selected{% endif %}>
+
+                                {{ membre.get_full_name|default:membre.username }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- COMMENTAIRE -->
+
+                <div class="mb-4">
+
+                    <label for="commentaire"
+                           class="form-label fw-semibold">
+
+                        Commentaire
+
+                    </label>
+
+                    <textarea
+                        name="commentaire"
+                        id="commentaire"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Remarque ou consigne concernant ce jalon...">{{ jalon.commentaire }}</textarea>
+
+                    <div class="form-text">
+
+                        Permet d'ajouter une remarque de suivi,
+                        notamment par l'encadrant.
+
+                    </div>
+
+                </div>
+
+
+                <!-- INFORMATIONS -->
+
+                {% if jalon.valide %}
+
+                    <div class="alert alert-success">
+
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        Ce jalon est actuellement validé.
+
+                        <br>
+
+                        <small>
+
+                            Taux d'achèvement :
+                            <strong>{{ jalon.taux_achevement }}%</strong>
+
+                        </small>
+
+                    </div>
+
+                {% elif jalon.statut == "EN_COURS" %}
+
+                    <div class="alert alert-primary">
+
+                        <i class="bi bi-hourglass-split me-2"></i>
+
+                        Ce jalon est actuellement en cours.
+
+                        <br>
+
+                        <small>
+
+                            Taux d'achèvement :
+                            <strong>{{ jalon.taux_achevement }}%</strong>
+
+                        </small>
+
+                    </div>
+
+                {% elif jalon.est_en_retard %}
+
+                    <div class="alert alert-danger">
+
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+
+                        Attention : ce jalon est en retard.
+
+                    </div>
+
+                {% endif %}
+
+
+                <!-- ACTIONS -->
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-save me-1"></i>
+
+                        Enregistrer
+
+                    </button>
+
+
+                    <a
+                        href="{% url 'detail_projet' projet.pk %}"
+                        class="btn btn-outline-secondary">
+
+                        Annuler
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

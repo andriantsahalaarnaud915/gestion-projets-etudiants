@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}Correction IA{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">🤖 Correction IA</h2>
+
+        <p class="text-muted">
+            Analyse intelligente de votre document
+        </p>
+    </div>
+
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <h3 class="fw-bold">
+                {{ document.titre }}
+            </h3>
+
+            <p class="text-muted">
+                Projet :
+                <strong>
+                    {{ document.projet.titre }}
+                </strong>
+            </p>
+
+            <hr>
+
+
+            <!-- STATUT -->
+
+            <p>
+                <strong>Statut :</strong>
+
+                {% if correction.statut == "TERMINEE" %}
+
+                    <span class="badge bg-success">
+                        Terminée
+                    </span>
+
+                {% elif correction.statut == "EN_COURS" %}
+
+                    <span class="badge bg-warning text-dark">
+                        En cours
+                    </span>
+
+                {% elif correction.statut == "ERREUR" %}
+
+                    <span class="badge bg-danger">
+                        Erreur
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-secondary">
+                        En attente
+                    </span>
+
+                {% endif %}
+            </p>
+
+
+            <!-- RESULTAT -->
+
+            {% if correction.statut == "TERMINEE" %}
+
+                <div class="mt-4">
+
+                    <h4 class="fw-bold">
+                        📊 Résultat de l'analyse
+                    </h4>
+
+                    <div class="card bg-light border-0 mt-3">
+
+                        <div class="card-body">
+
+                            <div style="white-space: pre-wrap;">
+                                {{ correction.resultat }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            {% elif correction.statut == "ERREUR" %}
+
+                <div class="alert alert-danger mt-4">
+
+                    <h5 class="fw-bold">
+                        ⚠️ L'analyse n'a pas pu être effectuée
+                    </h5>
+
+                    <p class="mb-0">
+                        {{ correction.resultat }}
+                    </p>
+
+                </div>
+
+
+            {% elif correction.statut == "EN_COURS" %}
+
+                <div class="alert alert-info mt-4">
+
+                    ⏳ L'analyse du document est en cours.
+
+                </div>
+
+
+            {% else %}
+
+                <div class="alert alert-secondary mt-4">
+
+                    L'analyse est en attente.
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- BOUTON RELANCER -->
+
+            <div class="mt-4">
+
+                <form
+                    method="post"
+                    action="{% url 'relancer_correction_ia' document.id %}"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        🔄 Relancer l’analyse IA
+                    </button>
+                    <hr class="my-5">
+
+<div class="mt-4">
+
+    <h4 class="fw-bold">
+        📚 Historique des corrections
+    </h4>
+
+    <p class="text-muted">
+        Toutes les analyses IA effectuées sur ce document.
+    </p>
+
+    {% if corrections %}
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th>Effectuée par</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in corrections %}
+
+                        <tr>
+
+                            <td>
+                                {{ item.id }}
+                            </td>
+
+                            <td>
+                                {{ item.date_creation|date:"d/m/Y à H:i" }}
+                            </td>
+
+                            <td>
+
+                                {% if item.statut == "TERMINEE" %}
+
+                                    <span class="badge bg-success">
+                                        Terminée
+                                    </span>
+
+                                {% elif item.statut == "EN_COURS" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        En cours
+                                    </span>
+
+                                {% elif item.statut == "ERREUR" %}
+
+                                    <span class="badge bg-danger">
+                                        Erreur
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        En attente
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {{ item.effectuee_par.username }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'voir_correction_ia' item.id %}"
+                                    class="btn btn-sm btn-outline-primary"
+                                >
+                                    👁️ Consulter
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-secondary">
+            Aucune correction IA n'a encore été effectuée.
+        </div>
+
+    {% endif %}
+
+</div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

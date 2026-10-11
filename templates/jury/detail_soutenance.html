@@ -1,0 +1,919 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Soutenance - {{ soutenance.projet.titre }}
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- ===================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ===================================================== -->
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+
+            <a
+                href="{% url 'jury:dashboard' %}"
+                class="btn btn-outline-secondary btn-sm mb-3"
+            >
+                <i class="bi bi-arrow-left me-1"></i>
+                Retour aux soutenances
+            </a>
+
+            <h2 class="fw-bold mb-1">
+
+                <i class="bi bi-mortarboard me-2"></i>
+
+                {{ soutenance.projet.titre }}
+
+            </h2>
+
+            <p class="text-muted mb-0">
+                Détails de la soutenance et gestion du jury
+            </p>
+
+        </div>
+
+
+        <!-- ACTIONS ADMIN / ENSEIGNANT -->
+
+        {% if peut_gerer_soutenance %}
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <a
+                    href="{% url 'jury:modifier_soutenance' soutenance.id %}"
+                    class="btn btn-outline-primary"
+                >
+                    <i class="bi bi-pencil me-1"></i>
+                    Modifier
+                </a>
+
+                <a
+                    href="{% url 'jury:supprimer_soutenance' soutenance.id %}"
+                    class="btn btn-outline-danger"
+                >
+                    <i class="bi bi-trash me-1"></i>
+                    Supprimer
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- MESSAGES -->
+    <!-- ===================================================== -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                role="alert"
+            >
+
+                {{ message }}
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                ></button>
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <!-- ===================================================== -->
+    <!-- INFORMATIONS SOUTENANCE -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-white py-3">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-calendar-event me-2"></i>
+
+                Informations de la soutenance
+
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <!-- DATE -->
+
+                <div class="col-md-4">
+
+                    <div class="p-3 bg-light rounded">
+
+                        <small class="text-muted d-block mb-1">
+                            Date
+                        </small>
+
+                        <strong>
+
+                            <i class="bi bi-calendar3 me-1"></i>
+
+                            {{ soutenance.date|date:"d/m/Y" }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HEURE -->
+
+                <div class="col-md-4">
+
+                    <div class="p-3 bg-light rounded">
+
+                        <small class="text-muted d-block mb-1">
+                            Heure
+                        </small>
+
+                        <strong>
+
+                            <i class="bi bi-clock me-1"></i>
+
+                            {{ soutenance.heure|time:"H:i" }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SALLE -->
+
+                <div class="col-md-4">
+
+                    <div class="p-3 bg-light rounded">
+
+                        <small class="text-muted d-block mb-1">
+                            Salle
+                        </small>
+
+                        <strong>
+
+                            <i class="bi bi-geo-alt me-1"></i>
+
+                            {{ soutenance.salle }}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUT -->
+
+                <div class="col-md-4">
+
+                    <div class="p-3 bg-light rounded">
+
+                        <small class="text-muted d-block mb-2">
+                            Statut
+                        </small>
+
+
+                        {% if soutenance.statut == "PLANIFIEE" %}
+
+                            <span class="badge bg-primary">
+                                <i class="bi bi-calendar-check me-1"></i>
+                                Planifiée
+                            </span>
+
+                        {% elif soutenance.statut == "EN_COURS" %}
+
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-play-circle me-1"></i>
+                                En cours
+                            </span>
+
+                        {% elif soutenance.statut == "TERMINEE" %}
+
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Terminée
+                            </span>
+
+                        {% elif soutenance.statut == "ANNULEE" %}
+
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Annulée
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- CRÉÉE PAR -->
+
+                <div class="col-md-4">
+
+                    <div class="p-3 bg-light rounded">
+
+                        <small class="text-muted d-block mb-1">
+                            Créée par
+                        </small>
+
+                        <strong>
+
+                            {% if soutenance.creee_par %}
+
+                                {{ soutenance.creee_par.get_full_name|default:soutenance.creee_par.username }}
+
+                            {% else %}
+
+                                Non renseigné
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PROJET -->
+
+                <div class="col-md-4">
+
+                    <div class="p-3 bg-light rounded">
+
+                        <small class="text-muted d-block mb-1">
+                            Projet
+                        </small>
+
+                        <strong>
+                            {{ soutenance.projet.titre }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- COMMENTAIRE -->
+
+            {% if soutenance.commentaire %}
+
+                <hr class="my-4">
+
+                <div>
+
+                    <h6 class="fw-bold">
+                        <i class="bi bi-chat-left-text me-2"></i>
+                        Commentaire
+                    </h6>
+
+                    <div class="alert alert-light border mb-0">
+
+                        {{ soutenance.commentaire|linebreaks }}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- GESTION DU STATUT -->
+    <!-- ===================================================== -->
+
+    {% if peut_gerer_soutenance %}
+
+        <div class="card shadow-sm border-0 mb-4">
+
+            <div class="card-header bg-white py-3">
+
+                <h5 class="fw-bold mb-0">
+
+                    <i class="bi bi-gear me-2"></i>
+
+                    Gestion du statut
+
+                </h5>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <p class="text-muted">
+                    Modifier l'état actuel de la soutenance.
+                </p>
+
+
+                <div class="d-flex flex-wrap gap-2">
+
+
+                    {% if soutenance.statut != "PLANIFIEE" %}
+
+                        <form
+                            method="post"
+                            action="{% url 'jury:changer_statut_soutenance' soutenance.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="statut"
+                                value="PLANIFIEE"
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-calendar-check me-1"></i>
+                                Planifiée
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if soutenance.statut != "EN_COURS" %}
+
+                        <form
+                            method="post"
+                            action="{% url 'jury:changer_statut_soutenance' soutenance.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="statut"
+                                value="EN_COURS"
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-warning"
+                            >
+                                <i class="bi bi-play-circle me-1"></i>
+                                En cours
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if soutenance.statut != "TERMINEE" %}
+
+                        <form
+                            method="post"
+                            action="{% url 'jury:changer_statut_soutenance' soutenance.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="statut"
+                                value="TERMINEE"
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-success"
+                            >
+                                <i class="bi bi-check-circle me-1"></i>
+                                Terminée
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                    {% if soutenance.statut != "ANNULEE" %}
+
+                        <form
+                            method="post"
+                            action="{% url 'jury:changer_statut_soutenance' soutenance.id %}"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="statut"
+                                value="ANNULEE"
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger"
+                            >
+                                <i class="bi bi-x-circle me-1"></i>
+                                Annulée
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- ===================================================== -->
+    <!-- MEMBRES DU JURY -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-white py-3">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                <h5 class="fw-bold mb-0">
+
+                    <i class="bi bi-people me-2"></i>
+
+                    Membres du jury
+
+                </h5>
+
+
+                {% if peut_gerer_soutenance %}
+
+                    <a
+                        href="{% url 'jury:ajouter_membre_jury' soutenance.id %}"
+                        class="btn btn-sm btn-primary"
+                    >
+
+                        <i class="bi bi-person-plus me-1"></i>
+
+                        Ajouter un membre
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            {% if soutenance.membres.all %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th class="ps-4">
+                                    Membre
+                                </th>
+
+                                <th>
+                                    Fonction
+                                </th>
+
+                                <th>
+                                    Présence
+                                </th>
+
+                                {% if peut_gerer_soutenance %}
+                                    <th class="text-end pe-4">
+                                        Action
+                                    </th>
+                                {% endif %}
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for membre in soutenance.membres.all %}
+
+                                <tr>
+
+                                    <td class="ps-4">
+
+                                        <div class="fw-semibold">
+
+                                            {{ membre.utilisateur.get_full_name|default:membre.utilisateur.username }}
+
+                                        </div>
+
+                                        {% if membre.utilisateur.email %}
+
+                                            <small class="text-muted">
+
+                                                {{ membre.utilisateur.email }}
+
+                                            </small>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="badge bg-secondary">
+
+                                            {{ membre.get_fonction_display }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if membre.present %}
+
+                                            <span class="badge bg-success">
+
+                                                <i class="bi bi-check-circle me-1"></i>
+
+                                                Présent
+
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="badge bg-danger">
+
+                                                <i class="bi bi-x-circle me-1"></i>
+
+                                                Absent
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    {% if peut_gerer_soutenance %}
+
+                                        <td class="text-end pe-4">
+
+                                            <form
+                                                method="post"
+                                                action="{% url 'jury:supprimer_membre_jury' membre.id %}"
+                                                class="d-inline"
+                                            >
+
+                                                {% csrf_token %}
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Voulez-vous vraiment retirer ce membre du jury ?');"
+                                                >
+
+                                                    <i class="bi bi-person-dash me-1"></i>
+
+                                                    Retirer
+
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+
+                                    {% endif %}
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-5">
+
+                    <i class="bi bi-people fs-1 text-muted"></i>
+
+                    <h6 class="mt-3">
+                        Aucun membre du jury
+                    </h6>
+
+                    <p class="text-muted mb-0">
+                        Aucun membre n'est encore affecté à cette soutenance.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- ÉVALUATIONS -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-white py-3">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                <h5 class="fw-bold mb-0">
+
+                    <i class="bi bi-clipboard-check me-2"></i>
+
+                    Évaluations
+
+                </h5>
+
+
+                {% if current_membre %}
+
+                    <a
+                        href="{% url 'jury:evaluer_soutenance' soutenance.id %}"
+                        class="btn btn-sm btn-primary"
+                    >
+
+                        <i class="bi bi-pencil-square me-1"></i>
+
+                        {% if current_evaluation %}
+                            Modifier mon évaluation
+                        {% else %}
+                            Évaluer cette soutenance
+                        {% endif %}
+
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if evaluations %}
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th>
+                                    Membre
+                                </th>
+
+                                <th>
+                                    Fonction
+                                </th>
+
+                                <th>
+                                    Note
+                                </th>
+
+                                <th>
+                                    Commentaire
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for evaluation in evaluations %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+
+                                            {{ evaluation.membre_jury.utilisateur.get_full_name|default:evaluation.membre_jury.utilisateur.username }}
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ evaluation.membre_jury.get_fonction_display }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="badge bg-success fs-6">
+
+                                            {{ evaluation.note }} / 20
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if evaluation.commentaire %}
+
+                                            {{ evaluation.commentaire }}
+
+                                        {% else %}
+
+                                            <span class="text-muted">
+                                                Aucun commentaire
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- RÉSUMÉ -->
+
+                <hr class="my-4">
+
+
+                <div class="row g-3 text-center">
+
+                    <div class="col-md-6">
+
+                        <div class="border rounded p-3">
+
+                            <small class="text-muted d-block">
+                                Nombre d'évaluations
+                            </small>
+
+                            <h3 class="fw-bold mb-0 mt-1">
+
+                                {{ nombre_evaluations }}
+
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <div class="border rounded p-3">
+
+                            <small class="text-muted d-block">
+                                Moyenne générale
+                            </small>
+
+                            <h3 class="fw-bold mb-0 mt-1">
+
+                                {% if moyenne is not None %}
+
+                                    {{ moyenne|floatformat:2 }} / 20
+
+                                {% else %}
+
+                                    -- / 20
+
+                                {% endif %}
+
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="text-center py-4">
+
+                    <i class="bi bi-clipboard-x fs-1 text-muted"></i>
+
+                    <h6 class="mt-3">
+                        Aucune évaluation
+                    </h6>
+
+                    <p class="text-muted mb-3">
+                        Aucune note n'a encore été enregistrée.
+                    </p>
+
+                    {% if current_membre %}
+
+                        <a
+                            href="{% url 'jury:evaluer_soutenance' soutenance.id %}"
+                            class="btn btn-primary"
+                        >
+
+                            <i class="bi bi-pencil-square me-1"></i>
+
+                            Évaluer cette soutenance
+
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- RETOUR -->
+    <!-- ===================================================== -->
+
+    <div class="mt-4">
+
+        <a
+            href="{% url 'jury:dashboard' %}"
+            class="btn btn-outline-secondary"
+        >
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Retour au tableau de bord
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

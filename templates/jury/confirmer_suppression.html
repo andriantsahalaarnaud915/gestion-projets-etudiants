@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Supprimer la soutenance{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-6">
+
+            <div class="card shadow-sm border-0">
+
+                <!-- EN-TÊTE -->
+
+                <div class="card-header bg-white py-3">
+
+                    <h4 class="fw-bold text-danger mb-0">
+
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+
+                        Supprimer la soutenance
+
+                    </h4>
+
+                </div>
+
+
+                <!-- CONTENU -->
+
+                <div class="card-body p-4">
+
+                    <div class="alert alert-danger">
+
+                        <div class="d-flex">
+
+                            <i class="bi bi-exclamation-triangle fs-3 me-3"></i>
+
+                            <div>
+
+                                <strong>
+                                    Attention !
+                                </strong>
+
+                                <p class="mb-0 mt-1">
+
+                                    Cette action est définitive.
+                                    La soutenance et les informations qui lui sont liées
+                                    seront supprimées.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFORMATIONS -->
+
+                    <div class="border rounded p-3 mb-4">
+
+                        <h5 class="fw-bold mb-3">
+
+                            {{ soutenance.projet.titre }}
+
+                        </h5>
+
+
+                        <div class="mb-2">
+
+                            <small class="text-muted d-block">
+                                Date
+                            </small>
+
+                            <strong>
+
+                                <i class="bi bi-calendar3 me-1"></i>
+
+                                {{ soutenance.date|date:"d/m/Y" }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="mb-2">
+
+                            <small class="text-muted d-block">
+                                Heure
+                            </small>
+
+                            <strong>
+
+                                <i class="bi bi-clock me-1"></i>
+
+                                {{ soutenance.heure|time:"H:i" }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <small class="text-muted d-block">
+                                Salle
+                            </small>
+
+                            <strong>
+
+                                <i class="bi bi-geo-alt me-1"></i>
+
+                                {{ soutenance.salle }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CONFIRMATION -->
+
+                    <p class="text-muted">
+
+                        Voulez-vous vraiment supprimer cette soutenance ?
+
+                    </p>
+
+
+                    <!-- FORMULAIRE -->
+
+                    <form method="post">
+
+                        {% csrf_token %}
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger"
+                            >
+
+                                <i class="bi bi-trash me-1"></i>
+
+                                Oui, supprimer
+
+                            </button>
+
+
+                            <a
+                                href="{% url 'jury:detail_soutenance' soutenance.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+
+                                <i class="bi bi-arrow-left me-1"></i>
+
+                                Annuler
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

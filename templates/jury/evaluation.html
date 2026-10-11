@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Évaluation - {{ soutenance.projet.titre }}
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- ===================================================== -->
+    <!-- EN-TÊTE -->
+    <!-- ===================================================== -->
+
+    <div class="mb-4">
+
+        <a
+            href="{% url 'jury:detail_soutenance' soutenance.id %}"
+            class="btn btn-outline-secondary btn-sm mb-3"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Retour à la soutenance
+        </a>
+
+        <h2 class="fw-bold mb-1">
+
+            <i class="bi bi-clipboard-check me-2"></i>
+
+            Évaluation de la soutenance
+
+        </h2>
+
+        <p class="text-muted mb-0">
+            Saisissez votre évaluation du projet présenté.
+        </p>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- MESSAGES -->
+    <!-- ===================================================== -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
+                role="alert"
+            >
+
+                {{ message }}
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                ></button>
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <div class="row g-4">
+
+        <!-- ================================================= -->
+        <!-- INFORMATIONS SOUTENANCE -->
+        <!-- ================================================= -->
+
+        <div class="col-lg-5">
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-white py-3">
+
+                    <h5 class="fw-bold mb-0">
+
+                        <i class="bi bi-calendar-event me-2"></i>
+
+                        Soutenance
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <h4 class="fw-bold">
+
+                        {{ soutenance.projet.titre }}
+
+                    </h4>
+
+
+                    <hr>
+
+
+                    <!-- DATE -->
+
+                    <div class="mb-3">
+
+                        <small class="text-muted d-block">
+                            Date
+                        </small>
+
+                        <strong>
+
+                            <i class="bi bi-calendar3 me-1"></i>
+
+                            {{ soutenance.date|date:"d/m/Y" }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <!-- HEURE -->
+
+                    <div class="mb-3">
+
+                        <small class="text-muted d-block">
+                            Heure
+                        </small>
+
+                        <strong>
+
+                            <i class="bi bi-clock me-1"></i>
+
+                            {{ soutenance.heure|time:"H:i" }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <!-- SALLE -->
+
+                    <div class="mb-3">
+
+                        <small class="text-muted d-block">
+                            Salle
+                        </small>
+
+                        <strong>
+
+                            <i class="bi bi-geo-alt me-1"></i>
+
+                            {{ soutenance.salle }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <!-- FONCTION -->
+
+                    <div>
+
+                        <small class="text-muted d-block mb-2">
+                            Votre fonction
+                        </small>
+
+                        <span class="badge bg-secondary fs-6">
+
+                            {{ membre_jury.get_fonction_display }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- INFORMATION ÉVALUATION -->
+            <!-- ================================================= -->
+
+            {% if evaluation %}
+
+                <div class="alert alert-info">
+
+                    <div class="d-flex">
+
+                        <i class="bi bi-info-circle fs-4 me-3"></i>
+
+                        <div>
+
+                            <strong>
+                                Évaluation existante
+                            </strong>
+
+                            <p class="mb-0 mt-1">
+                                Vous avez déjà évalué cette soutenance.
+                                Vous pouvez modifier votre note et votre commentaire.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="alert alert-light border">
+
+                    <div class="d-flex">
+
+                        <i class="bi bi-pencil-square fs-4 me-3"></i>
+
+                        <div>
+
+                            <strong>
+                                Nouvelle évaluation
+                            </strong>
+
+                            <p class="mb-0 mt-1 text-muted">
+                                Attribuez une note comprise entre 0 et 20.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- FORMULAIRE -->
+        <!-- ================================================= -->
+
+        <div class="col-lg-7">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white py-3">
+
+                    <h5 class="fw-bold mb-0">
+
+                        <i class="bi bi-pencil-square me-2"></i>
+
+                        Votre évaluation
+
+                    </h5>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <form
+                        method="post"
+                        novalidate
+                    >
+
+                        {% csrf_token %}
+
+
+                        <!-- NOTE -->
+
+                        <div class="mb-4">
+
+                            <label
+                                for="note"
+                                class="form-label fw-semibold"
+                            >
+                                Note finale / 20
+                            </label>
+
+
+                            <div class="input-group input-group-lg">
+
+                                <input
+                                    type="number"
+                                    id="note"
+                                    name="note"
+                                    class="form-control"
+                                    min="0"
+                                    max="20"
+                                    step="0.01"
+                                    value="{{ evaluation.note|default:'' }}"
+                                    placeholder="Ex. 15.50"
+                                    required
+                                >
+
+                                <span class="input-group-text">
+                                    / 20
+                                </span>
+
+                            </div>
+
+
+                            <div class="form-text">
+                                La note doit être comprise entre
+                                <strong>0</strong> et <strong>20</strong>.
+                            </div>
+
+                        </div>
+
+
+                        <!-- COMMENTAIRE -->
+
+                        <div class="mb-4">
+
+                            <label
+                                for="commentaire"
+                                class="form-label fw-semibold"
+                            >
+                                Commentaire
+                            </label>
+
+
+                            <textarea
+                                id="commentaire"
+                                name="commentaire"
+                                class="form-control"
+                                rows="7"
+                                placeholder="Saisissez vos remarques, observations et commentaires sur la soutenance..."
+                            >{{ evaluation.commentaire|default:'' }}</textarea>
+
+
+                            <div class="form-text">
+                                Vous pouvez ajouter vos observations concernant la présentation et le projet.
+                            </div>
+
+                        </div>
+
+
+                        <!-- ACTIONS -->
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+
+                                <i class="bi bi-save me-1"></i>
+
+                                {% if evaluation %}
+                                    Modifier l'évaluation
+                                {% else %}
+                                    Enregistrer l'évaluation
+                                {% endif %}
+
+                            </button>
+
+
+                            <a
+                                href="{% url 'jury:detail_soutenance' soutenance.id %}"
+                                class="btn btn-outline-secondary"
+                            >
+
+                                <i class="bi bi-x-circle me-1"></i>
+
+                                Annuler
+
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

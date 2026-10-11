@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Déposer un document{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">Déposer un document</h4>
+                <small class="text-muted">Projet : {{ projet.titre }}</small>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Titre du document *</label>
+                        <input type="text" name="titre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Type de document *</label>
+                        <select name="type_document" class="form-select" required>
+                            <option value="CAHIER">Cahier des charges</option>
+                            <option value="RAPPORT">Rapport</option>
+                            <option value="PRESENTATION">Présentation</option>
+                            <option value="CODE">Code source</option>
+                            <option value="AUTRE">Autre</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">Fichier *</label>
+                        <input type="file" name="fichier" class="form-control" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Déposer</button>
+                        <a href="{% url 'detail_projet' projet.pk %}" class="btn btn-outline-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

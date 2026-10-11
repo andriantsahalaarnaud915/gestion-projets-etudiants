@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des projets{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Projets</h2>
+    <a href="{% url 'creer_projet' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Nouveau projet
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        {% if projets %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Titre</th>
+                        <th>Statut</th>
+                        <th>Progression</th>
+                        <th>Créateur</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for projet in projets %}
+                    <tr>
+                        <td class="fw-medium">{{ projet.titre }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if projet.statut == 'EN_COURS' %}bg-warning
+                                {% elif projet.statut == 'TERMINE' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ projet.get_statut_display }}
+                            </span>
+                        </td>
+                        <td>{{ projet.progression }}%</td>
+                        <td>{{ projet.createur }}</td>
+                        <td>{{ projet.date_creation|date:"d/m/Y" }}</td>
+                        <td>
+                            <a href="{% url 'detail_projet' projet.pk %}" class="btn btn-sm btn-outline-primary">Détails</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <p>Aucun projet trouvé</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
