@@ -49,13 +49,22 @@
             <!-- SUPPRIMER -->
             {% if projet.createur == request.user or request.user.is_admin or request.user.is_superuser %}
 
-                <a href="{% url 'supprimer_projet' projet.pk %}"
-                   class="btn btn-outline-danger">
+                <form method="post"
+                      action="{% url 'supprimer_projet' projet.pk %}"
+                      class="d-inline">
 
-                    <i class="bi bi-trash"></i>
-                    Supprimer
+                    {% csrf_token %}
 
-                </a>
+                    <button type="submit"
+                            class="btn btn-outline-danger"
+                            onclick="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
+
+                        <i class="bi bi-trash"></i>
+                        Supprimer
+
+                    </button>
+
+                </form>
 
             {% endif %}
 
@@ -1233,15 +1242,23 @@
 
                         {% if projet.createur == request.user or request.user.is_admin or request.user.is_superuser %}
 
-                            <a
-                                href="{% url 'supprimer_projet' projet.pk %}"
-                                class="btn btn-outline-danger">
+                            <form method="post"
+                                  action="{% url 'supprimer_projet' projet.pk %}"
+                                  class="d-inline">
 
-                                <i class="bi bi-trash me-1"></i>
+                                {% csrf_token %}
 
-                                Supprimer
+                                <button type="submit"
+                                        class="btn btn-outline-danger"
+                                        onclick="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
 
-                            </a>
+                                    <i class="bi bi-trash me-1"></i>
+
+                                    Supprimer
+
+                                </button>
+
+                            </form>
 
                         {% endif %}
 

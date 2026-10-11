@@ -159,6 +159,43 @@
 
 
     /* =====================================================
+       RISQUE
+    ===================================================== */
+
+    .risk-box {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 14px;
+    }
+
+
+    .risk-title {
+        font-size: .9rem;
+        font-weight: 700;
+        color: #172033;
+    }
+
+
+    .risk-factor {
+        font-size: .82rem;
+        padding: 3px 0;
+    }
+
+
+    .risk-score {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+
+    .risk-progress {
+        height: 7px;
+        border-radius: 20px;
+    }
+
+
+    /* =====================================================
        ECHEANCES
     ===================================================== */
 
@@ -354,18 +391,24 @@
                 <div>
 
                     <h1 class="dashboard-title mb-1">
+
                         Bonjour
+
                         {% if user.first_name %}
                             {{ user.first_name }}
                         {% else %}
                             {{ user.username }}
                         {% endif %}
+
                         👋
+
                     </h1>
 
                     <p class="dashboard-subtitle">
+
                         Bienvenue.
                         Suivez ici l'avancement de vos projets.
+
                     </p>
 
                 </div>
@@ -381,8 +424,11 @@
                 href="{% url 'creer_projet' %}"
                 class="btn btn-primary px-4 py-2"
             >
+
                 <i class="bi bi-plus-lg me-2"></i>
+
                 Nouveau projet
+
             </a>
 
         </div>
@@ -420,7 +466,9 @@
                 </div>
 
                 <div class="stat-icon bg-primary-subtle text-primary">
+
                     <i class="bi bi-folder2-open"></i>
+
                 </div>
 
             </div>
@@ -451,7 +499,9 @@
                 </div>
 
                 <div class="stat-icon bg-warning-subtle text-warning">
+
                     <i class="bi bi-arrow-repeat"></i>
+
                 </div>
 
             </div>
@@ -482,7 +532,9 @@
                 </div>
 
                 <div class="stat-icon bg-success-subtle text-success">
+
                     <i class="bi bi-check-circle"></i>
+
                 </div>
 
             </div>
@@ -513,7 +565,9 @@
                 </div>
 
                 <div class="stat-icon bg-info-subtle text-info">
+
                     <i class="bi bi-file-earmark-text"></i>
+
                 </div>
 
             </div>
@@ -540,17 +594,18 @@
 
             <div class="dashboard-card-header">
 
-                <div>
+                <h5 class="dashboard-card-title">
 
-                    <h5 class="dashboard-card-title">
-                        <i class="bi bi-graph-up-arrow me-2 text-primary"></i>
-                        Progression de vos projets
-                    </h5>
+                    <i class="bi bi-graph-up-arrow me-2 text-primary"></i>
 
-                </div>
+                    Progression de vos projets
+
+                </h5>
 
                 <span class="badge bg-primary-subtle text-primary">
+
                     {{ progression_moyenne }}%
+
                 </span>
 
             </div>
@@ -564,20 +619,30 @@
 
                         <div class="project-card mb-3">
 
+                            <!-- =================================================
+                                 EN-TETE PROJET
+                            ================================================= -->
+
                             <div class="d-flex justify-content-between align-items-start mb-2">
 
                                 <div>
 
                                     <div class="project-title">
+
                                         {{ projet.titre }}
+
                                     </div>
 
                                     <div class="project-description mt-1">
 
                                         {% if projet.description %}
+
                                             {{ projet.description|truncatechars:100 }}
+
                                         {% else %}
+
                                             Aucun descriptif disponible.
+
                                         {% endif %}
 
                                     </div>
@@ -585,34 +650,46 @@
                                 </div>
 
 
+                                <!-- STATUT -->
+
                                 {% if projet.statut == "EN_COURS" %}
 
                                     <span class="badge bg-warning-subtle text-warning-emphasis">
+
                                         En cours
+
                                     </span>
 
                                 {% elif projet.statut == "EVALUE" or projet.statut == "CLOTURE" %}
 
                                     <span class="badge bg-success-subtle text-success">
+
                                         {{ projet.get_statut_display }}
+
                                     </span>
 
                                 {% elif projet.statut == "VALIDE" %}
 
                                     <span class="badge bg-success-subtle text-success">
+
                                         Validé
+
                                     </span>
 
                                 {% elif projet.statut == "REFUSE" %}
 
                                     <span class="badge bg-danger-subtle text-danger">
+
                                         Refusé
+
                                     </span>
 
                                 {% else %}
 
                                     <span class="badge bg-secondary-subtle text-secondary">
+
                                         {{ projet.get_statut_display }}
+
                                     </span>
 
                                 {% endif %}
@@ -620,14 +697,22 @@
                             </div>
 
 
+                            <!-- =================================================
+                                 PROGRESSION
+                            ================================================= -->
+
                             <div class="d-flex justify-content-between mb-1">
 
                                 <small class="text-muted">
+
                                     Progression
+
                                 </small>
 
                                 <small class="fw-bold">
+
                                     {{ projet.progression }}%
+
                                 </small>
 
                             </div>
@@ -639,22 +724,259 @@
                                     class="progress-bar bg-primary"
                                     role="progressbar"
                                     style="width: {{ projet.progression }}%;"
+                                    aria-valuenow="{{ projet.progression }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
                                 ></div>
 
                             </div>
 
+
+                            <!-- =================================================
+                                 RISQUE
+                            ================================================= -->
+
+                            <div class="risk-box mb-3">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                    <div class="risk-title">
+
+                                        <i class="bi bi-shield-exclamation me-1"></i>
+
+                                        Risque du projet
+
+                                    </div>
+
+
+                                    <span class="badge bg-{{ projet.classe_risque_dashboard }}">
+
+                                        {{ projet.niveau_risque_dashboard }}
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- SCORE -->
+
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+
+                                    <small class="text-muted">
+
+                                        Score de risque
+
+                                    </small>
+
+                                    <span class="risk-score">
+
+                                        {{ projet.score_risque_dashboard }}/100
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- BARRE DU SCORE -->
+
+                                <div class="progress risk-progress mb-3">
+
+                                    <div
+                                        class="progress-bar bg-{{ projet.classe_risque_dashboard }}"
+                                        role="progressbar"
+                                        style="width: {{ projet.score_risque_dashboard }}%;"
+                                        aria-valuenow="{{ projet.score_risque_dashboard }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                    ></div>
+
+                                </div>
+
+
+                                <!-- FACTEURS -->
+
+                                <div class="risk-title mb-2">
+
+                                    Facteurs de risque
+
+                                </div>
+
+
+                                {% if projet.facteurs_risque_dashboard.retard > 0 %}
+
+                                    <div class="risk-factor d-flex justify-content-between">
+
+                                        <span>
+
+                                            <i class="bi bi-clock text-danger me-1"></i>
+
+                                            Retard
+
+                                        </span>
+
+                                        <strong>
+
+                                            {{ projet.facteurs_risque_dashboard.retard|floatformat:0 }}%
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if projet.facteurs_risque_dashboard.faible_progression > 0 %}
+
+                                    <div class="risk-factor d-flex justify-content-between">
+
+                                        <span>
+
+                                            <i class="bi bi-graph-down text-warning me-1"></i>
+
+                                            Faible progression
+
+                                        </span>
+
+                                        <strong>
+
+                                            {{ projet.facteurs_risque_dashboard.faible_progression|floatformat:0 }}%
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if projet.facteurs_risque_dashboard.livrables_non_deposes > 0 %}
+
+                                    <div class="risk-factor d-flex justify-content-between">
+
+                                        <span>
+
+                                            <i class="bi bi-file-earmark-x text-danger me-1"></i>
+
+                                            Livrables non déposés
+
+                                        </span>
+
+                                        <strong>
+
+                                            {{ projet.facteurs_risque_dashboard.livrables_non_deposes|floatformat:0 }}%
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if projet.facteurs_risque_dashboard.absence_activite > 0 %}
+
+                                    <div class="risk-factor d-flex justify-content-between">
+
+                                        <span>
+
+                                            <i class="bi bi-person-x text-warning me-1"></i>
+
+                                            Absence d'activité
+
+                                        </span>
+
+                                        <strong>
+
+                                            {{ projet.facteurs_risque_dashboard.absence_activite|floatformat:0 }}%
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if projet.facteurs_risque_dashboard.documents_rejetes > 0 %}
+
+                                    <div class="risk-factor d-flex justify-content-between">
+
+                                        <span>
+
+                                            <i class="bi bi-file-earmark-excel text-danger me-1"></i>
+
+                                            Documents rejetés
+
+                                        </span>
+
+                                        <strong>
+
+                                            {{ projet.facteurs_risque_dashboard.documents_rejetes|floatformat:0 }}%
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if projet.facteurs_risque_dashboard.echeance_proche > 0 %}
+
+                                    <div class="risk-factor d-flex justify-content-between">
+
+                                        <span>
+
+                                            <i class="bi bi-calendar-event text-warning me-1"></i>
+
+                                            Échéance proche
+
+                                        </span>
+
+                                        <strong>
+
+                                            {{ projet.facteurs_risque_dashboard.echeance_proche|floatformat:0 }}%
+
+                                        </strong>
+
+                                    </div>
+
+                                {% endif %}
+
+
+                                {% if projet.facteurs_risque_dashboard.retard == 0 and projet.facteurs_risque_dashboard.faible_progression == 0 and projet.facteurs_risque_dashboard.livrables_non_deposes == 0 and projet.facteurs_risque_dashboard.absence_activite == 0 and projet.facteurs_risque_dashboard.documents_rejetes == 0 and projet.facteurs_risque_dashboard.echeance_proche == 0 %}
+
+                                    <div class="text-success small">
+
+                                        <i class="bi bi-check-circle me-1"></i>
+
+                                        Aucun facteur de risque détecté.
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- =================================================
+                                 ECHEANCE + BOUTON
+                            ================================================= -->
 
                             <div class="d-flex justify-content-between align-items-center">
 
                                 <div class="small text-muted">
 
                                     {% if projet.date_fin_prevue %}
+
                                         <i class="bi bi-calendar3 me-1"></i>
+
                                         Échéance :
+
                                         {{ projet.date_fin_prevue|date:"d/m/Y" }}
+
                                     {% else %}
+
                                         <i class="bi bi-calendar3 me-1"></i>
+
                                         Aucune échéance
+
                                     {% endif %}
 
                                 </div>
@@ -664,8 +986,11 @@
                                     href="{% url 'detail_projet' projet.pk %}"
                                     class="btn btn-sm btn-outline-primary"
                                 >
+
                                     Voir le projet
+
                                     <i class="bi bi-arrow-right ms-1"></i>
+
                                 </a>
 
                             </div>
@@ -674,28 +999,38 @@
 
                     {% endfor %}
 
+
                 {% else %}
 
                     <div class="text-center py-5">
 
                         <div class="fs-1 text-muted mb-3">
+
                             <i class="bi bi-folder2-open"></i>
+
                         </div>
 
                         <h6 class="fw-bold">
+
                             Aucun projet
+
                         </h6>
 
                         <p class="text-muted">
+
                             Vous n'avez pas encore créé de projet.
+
                         </p>
 
                         <a
                             href="{% url 'creer_projet' %}"
                             class="btn btn-primary"
                         >
+
                             <i class="bi bi-plus-lg me-2"></i>
+
                             Créer mon premier projet
+
                         </a>
 
                     </div>
@@ -709,7 +1044,9 @@
     </div>
 
 
-    <!-- ASSISTANT IA -->
+    <!-- =====================================================
+         ASSISTANT IA
+    ===================================================== -->
 
     <div class="col-lg-4">
 
@@ -723,14 +1060,18 @@
 
 
             <h4 class="fw-bold">
+
                 Assistant IA
+
             </h4>
 
 
             <p class="opacity-75">
 
                 Besoin d'aide pour votre projet ?
+
                 L'assistant IA peut vous accompagner
+
                 dans votre suivi et votre préparation.
 
             </p>
@@ -739,22 +1080,36 @@
             <div class="mt-4">
 
                 <div class="small opacity-75 mb-2">
+
                     Vous pouvez demander de l'aide pour :
+
                 </div>
 
+
                 <div class="mb-2">
+
                     <i class="bi bi-check-circle me-2"></i>
+
                     Suivi du projet
+
                 </div>
 
+
                 <div class="mb-2">
+
                     <i class="bi bi-check-circle me-2"></i>
+
                     Conseils méthodologiques
+
                 </div>
 
+
                 <div class="mb-2">
+
                     <i class="bi bi-check-circle me-2"></i>
+
                     Préparation de la soutenance
+
                 </div>
 
             </div>
@@ -764,8 +1119,11 @@
                 href="{% url 'chatbot' %}"
                 class="btn btn-light mt-4 w-100"
             >
+
                 <i class="bi bi-chat-dots me-2"></i>
+
                 Ouvrir l'assistant
+
             </a>
 
         </div>
@@ -791,8 +1149,11 @@
             <div class="dashboard-card-header">
 
                 <h5 class="dashboard-card-title">
+
                     <i class="bi bi-calendar-event me-2 text-primary"></i>
+
                     Prochaines échéances
+
                 </h5>
 
             </div>
@@ -811,11 +1172,15 @@
                                 <div class="deadline-date">
 
                                     <span class="deadline-day">
+
                                         {{ projet.date_fin_prevue|date:"d" }}
+
                                     </span>
 
                                     <span class="deadline-month">
+
                                         {{ projet.date_fin_prevue|date:"M" }}
+
                                     </span>
 
                                 </div>
@@ -824,7 +1189,9 @@
                                 <div class="flex-grow-1">
 
                                     <div class="fw-semibold">
+
                                         {{ projet.titre }}
+
                                     </div>
 
                                     <div class="small text-muted">
@@ -842,7 +1209,9 @@
                                     href="{% url 'detail_projet' projet.pk %}"
                                     class="btn btn-sm btn-light"
                                 >
+
                                     <i class="bi bi-chevron-right"></i>
+
                                 </a>
 
                             </div>
@@ -858,7 +1227,9 @@
                         <i class="bi bi-calendar-check fs-1 text-success"></i>
 
                         <p class="text-muted mt-3 mb-0">
+
                             Aucune échéance à venir.
+
                         </p>
 
                     </div>
@@ -932,25 +1303,33 @@
                                 {% if document.statut == "VALIDE" %}
 
                                     <span class="badge bg-success-subtle text-success">
+
                                         Validé
+
                                     </span>
 
                                 {% elif document.statut == "REFUSE" %}
 
                                     <span class="badge bg-danger-subtle text-danger">
+
                                         Refusé
+
                                     </span>
 
                                 {% elif document.statut == "EN_COURS" %}
 
                                     <span class="badge bg-warning-subtle text-warning-emphasis">
+
                                         En cours
+
                                     </span>
 
                                 {% else %}
 
                                     <span class="badge bg-secondary-subtle text-secondary">
+
                                         Déposé
+
                                     </span>
 
                                 {% endif %}
@@ -968,7 +1347,9 @@
                         <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
 
                         <p class="text-muted mt-3 mb-0">
+
                             Aucun document récent.
+
                         </p>
 
                     </div>
@@ -1023,9 +1404,13 @@
                                 <div class="activity-title">
 
                                     Document
+
                                     <strong>
+
                                         {{ document.titre }}
+
                                     </strong>
+
                                     déposé
 
                                 </div>
@@ -1037,6 +1422,7 @@
                                     •
 
                                     Projet :
+
                                     {{ document.projet.titre }}
 
                                 </div>
@@ -1050,7 +1436,9 @@
                 {% else %}
 
                     <p class="text-muted mb-0">
+
                         Aucune activité récente.
+
                     </p>
 
                 {% endif %}

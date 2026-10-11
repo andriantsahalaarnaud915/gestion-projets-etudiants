@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,6 +8,7 @@ from django.utils import timezone
 from .models import Projet, Jalon
 from documents.models import Document
 from accounts.models import User
+from .services_risque import recalculer_risque_projet
 
 
 # ============================================================
@@ -172,17 +175,7 @@ def mettre_a_jour_retards_jalons(projet):
     Détecte automatiquement les jalons dont la date prévue
     est dépassée.
 
-    Un jalon déjà validé n'est jamais marqué en retard.
-
-    Un jalon :
-        - À faire
-        - En cours
-        - Terminé
-
-    devient automatiquement :
-        EN_RETARD
-
-    si sa date prévue est dépassée.
+    Un jalon validé n'est jamais marqué en retard.
     """
 
     aujourd_hui = timezone.now().date()
@@ -227,17 +220,6 @@ def mettre_a_jour_progression_projet(projet):
         Progression =
         Somme(poids × taux_achevement)
         / Somme(poids)
-
-    Taux selon le statut du jalon :
-
-        Validé  = 100 %
-        Terminé = 100 %
-        En cours = 40 %
-        À faire = 0 %
-        En retard = 0 %
-
-    Aucun jalon :
-        progression = 0 %
     """
 
     # Mettre d'abord à jour les retards
@@ -258,7 +240,6 @@ def mettre_a_jour_progression_projet(projet):
             poids = int(
                 jalon.poids or 0
             )
-
         except (
             TypeError,
             ValueError
@@ -276,7 +257,6 @@ def mettre_a_jour_progression_projet(projet):
             taux = int(
                 jalon.taux_achevement or 0
             )
-
         except (
             TypeError,
             ValueError
@@ -336,6 +316,38 @@ def mettre_a_jour_progression_projet(projet):
 
 
 # ============================================================
+# RECALCUL GLOBAL DU SUIVI
+# ============================================================
+
+def mettre_a_jour_suivi_projet(projet):
+    """
+    Synchronise :
+
+    1. les jalons en retard ;
+    2. la progression ;
+    3. le score de risque.
+
+    Cette fonction centralise le recalcul afin d'éviter
+    de répéter le même code dans toutes les vues.
+    """
+
+    # Progression
+    progression = mettre_a_jour_progression_projet(
+        projet
+    )
+
+    # Risque
+    risque = recalculer_risque_projet(
+        projet
+    )
+
+    return {
+        "progression": progression,
+        "risque": risque,
+    }
+
+
+# ============================================================
 # CALCUL DE LA VITESSE ET DE LA DATE DE FIN ESTIMEE
 # ============================================================
 
@@ -348,20 +360,6 @@ def calculer_prevision_projet(projet):
     - jours restants estimés
     - date de fin estimée
     - retard estimé en jours
-
-    La formule utilisée est :
-
-        Vitesse =
-        progression / jours écoulés
-
-        Jours nécessaires =
-        (100 - progression) / vitesse
-
-        Date fin estimée =
-        aujourd'hui + jours nécessaires
-
-        Retard =
-        date fin estimée - date fin prévue
     """
 
     aujourd_hui = timezone.now().date()
@@ -427,7 +425,7 @@ def calculer_prevision_projet(projet):
 
         date_fin_estimee = (
             aujourd_hui
-            + timezone.timedelta(
+            + timedelta(
                 days=jours_restants_estimes
             )
         )
@@ -488,6 +486,15 @@ def liste_projets(request):
                 equipe__membres=user
             )
         ).distinct()
+
+    # --------------------------------------------------------
+    # Mise à jour automatique des risques
+    # --------------------------------------------------------
+
+    for projet in projets:
+        mettre_a_jour_suivi_projet(
+            projet
+        )
 
     return render(
         request,
@@ -570,7 +577,11 @@ def creer_projet(request):
             date_fin_prevue=date_fin_prevue
         )
 
-        mettre_a_jour_progression_projet(
+        # ----------------------------------------------------
+        # INITIALISATION SUIVI + RISQUE
+        # ----------------------------------------------------
+
+        mettre_a_jour_suivi_projet(
             projet
         )
 
@@ -603,18 +614,27 @@ def detail_projet(request, pk):
     )
 
     # --------------------------------------------------------
-    # SYNCHRONISATION
+    # SYNCHRONISATION COMPLETE
     # --------------------------------------------------------
 
-    mettre_a_jour_progression_projet(
+    suivi = mettre_a_jour_suivi_projet(
         projet
     )
+
+    risque = suivi["risque"]
 
     # --------------------------------------------------------
     # PREVISION
     # --------------------------------------------------------
 
     prevision = calculer_prevision_projet(
+        projet
+    )
+
+    # Le calcul de prévision peut avoir actualisé
+    # la progression ; on recalcule donc le risque une
+    # dernière fois si nécessaire.
+    risque = recalculer_risque_projet(
         projet
     )
 
@@ -674,6 +694,15 @@ def detail_projet(request, pk):
 
             # Prévisions
             "prevision": prevision,
+
+            # Risque
+            "risque": risque,
+            "score_risque": risque["score"],
+            "niveau_risque": risque["libelle"],
+            "classe_risque": risque["classe_bootstrap"],
+            "facteurs_risque": risque["facteurs"],
+            "contributions_risque": risque["contributions"],
+            "poids_risque": risque["poids"],
         }
     )
 
@@ -1006,10 +1035,10 @@ def modifier_projet(request, pk):
         projet.save()
 
         # ----------------------------------------------------
-        # RECALCUL PROGRESSION
+        # RECALCUL COMPLET
         # ----------------------------------------------------
 
-        mettre_a_jour_progression_projet(
+        mettre_a_jour_suivi_projet(
             projet
         )
 
@@ -1288,10 +1317,10 @@ def creer_jalon(request, projet_id):
         )
 
         # ----------------------------------------------------
-        # RECALCUL
+        # RECALCUL COMPLET
         # ----------------------------------------------------
 
-        mettre_a_jour_progression_projet(
+        mettre_a_jour_suivi_projet(
             projet
         )
 
@@ -1561,10 +1590,10 @@ def modifier_jalon(request, pk):
         jalon.save()
 
         # ----------------------------------------------------
-        # RECALCUL
+        # RECALCUL COMPLET
         # ----------------------------------------------------
 
-        mettre_a_jour_progression_projet(
+        mettre_a_jour_suivi_projet(
             projet
         )
 
@@ -1628,7 +1657,11 @@ def supprimer_jalon(request, pk):
 
         jalon.delete()
 
-        mettre_a_jour_progression_projet(
+        # ----------------------------------------------------
+        # RECALCUL COMPLET
+        # ----------------------------------------------------
+
+        mettre_a_jour_suivi_projet(
             projet
         )
 
@@ -1685,7 +1718,11 @@ def valider_jalon(request, pk):
 
         jalon.save()
 
-        mettre_a_jour_progression_projet(
+        # ----------------------------------------------------
+        # RECALCUL COMPLET
+        # ----------------------------------------------------
+
+        mettre_a_jour_suivi_projet(
             projet
         )
 
@@ -1771,6 +1808,22 @@ def deposer_document(request, projet_id):
             )
 
         # ----------------------------------------------------
+        # VALIDATION TYPE DOCUMENT
+        # ----------------------------------------------------
+
+        types_valides = [
+            valeur
+            for valeur, label
+            in Document.TypeDocument.choices
+        ]
+
+        if type_document not in types_valides:
+
+            type_document = (
+                Document.TypeDocument.AUTRE
+            )
+
+        # ----------------------------------------------------
         # CREATION DOCUMENT
         # ----------------------------------------------------
 
@@ -1781,6 +1834,14 @@ def deposer_document(request, projet_id):
             projet=projet,
             depose_par=request.user,
             commentaire=commentaire
+        )
+
+        # ----------------------------------------------------
+        # RECALCUL DU RISQUE
+        # ----------------------------------------------------
+
+        recalculer_risque_projet(
+            projet
         )
 
         messages.success(

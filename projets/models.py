@@ -34,13 +34,15 @@ class Projet(models.Model):
         default=Statut.PROPOSITION
     )
 
+    # Progression automatique du projet : 0 à 100
     progression = models.PositiveIntegerField(
         default=0
-    )  # 0 à 100
+    )
 
+    # Score de risque : 0 à 100
     score_risque = models.PositiveIntegerField(
         default=0
-    )  # 0 à 100 (plus c'est haut, plus c'est risqué)
+    )
 
     date_debut = models.DateField(
         default=timezone.now
@@ -84,12 +86,63 @@ class Projet(models.Model):
     def __str__(self):
         return self.titre
 
+    # ==========================================================
+    # GESTION DU RISQUE
+    # ==========================================================
+
     @property
     def est_a_risque(self):
-        return self.score_risque >= 50
+        """
+        Indique si le projet est considéré comme à risque.
+
+        Seuils du cahier des charges :
+            0 à 29   : Faible
+            30 à 59  : Modéré
+            60 à 100 : À risque
+        """
+        return self.score_risque >= 60
+
+    @property
+    def niveau_risque(self):
+        """
+        Retourne le niveau de risque du projet.
+        """
+
+        if self.score_risque >= 60:
+            return "À risque"
+
+        if self.score_risque >= 30:
+            return "Modéré"
+
+        return "Faible"
+
+    @property
+    def classe_risque(self):
+        """
+        Retourne la classe Bootstrap correspondant
+        au niveau de risque.
+        """
+
+        if self.score_risque >= 60:
+            return "danger"
+
+        if self.score_risque >= 30:
+            return "warning"
+
+        return "success"
+
+    # ==========================================================
+    # GESTION DES DATES
+    # ==========================================================
 
     @property
     def jours_restants(self):
+        """
+        Retourne le nombre de jours restant avant
+        la date de fin prévue.
+
+        Valeur négative = projet en retard.
+        """
         if self.date_fin_prevue:
             delta = (
                 self.date_fin_prevue
@@ -98,6 +151,36 @@ class Projet(models.Model):
             return delta.days
 
         return None
+
+    @property
+    def est_en_retard(self):
+        """
+        Indique si la date de fin prévue est dépassée.
+        """
+
+        if not self.date_fin_prevue:
+            return False
+
+        if self.date_fin_reelle:
+            return False
+
+        return self.date_fin_prevue < timezone.now().date()
+
+    # ==========================================================
+    # AFFICHAGE DE L'ÉTAT DU PROJET
+    # ==========================================================
+
+    @property
+    def statut_libelle(self):
+        """
+        Retourne le libellé lisible du statut.
+        """
+
+        return self.get_statut_display()
+
+    # ==========================================================
+    # META
+    # ==========================================================
 
     class Meta:
         ordering = [
@@ -159,7 +242,7 @@ class Jalon(models.Model):
         blank=True
     )
 
-    # Poids du jalon dans la progression globale du projet
+    # Poids du jalon dans la progression globale
     poids = models.PositiveIntegerField(
         default=1
     )
@@ -179,10 +262,14 @@ class Jalon(models.Model):
     def __str__(self):
         return f"{self.titre} - {self.projet.titre}"
 
+    # ==========================================================
+    # PROGRESSION DU JALON
+    # ==========================================================
+
     @property
     def taux_achevement(self):
         """
-        Retourne le taux d'achèvement du jalon selon son statut.
+        Retourne le taux d'achèvement du jalon.
 
         VALIDE   = 100 %
         TERMINE  = 100 %
@@ -205,6 +292,10 @@ class Jalon(models.Model):
 
         return 0
 
+    # ==========================================================
+    # RETARD DU JALON
+    # ==========================================================
+
     @property
     def est_en_retard(self):
         """
@@ -214,13 +305,31 @@ class Jalon(models.Model):
         if self.statut == self.Statut.VALIDE:
             return False
 
+        if self.valide:
+            return False
+
         if self.date_prevue:
             return (
                 self.date_prevue < timezone.now().date()
-                and not self.valide
             )
 
         return False
+
+    # ==========================================================
+    # LIBELLE DU STATUT
+    # ==========================================================
+
+    @property
+    def statut_libelle(self):
+        """
+        Retourne le libellé lisible du statut.
+        """
+
+        return self.get_statut_display()
+
+    # ==========================================================
+    # META
+    # ==========================================================
 
     class Meta:
         ordering = [
