@@ -122,7 +122,4 @@ python manage.py runserver
 Auteur
 Andriantsahala Arnaud M1 MIAGE SE20220175
 Étudiant en Master 1 MIAGE — Informatique
-ESMIA
 Projet : Conception et réalisation d'une plateforme web de gestion des projets étudiants
-Année universitaire
-2025-2026
